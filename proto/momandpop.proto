@@ -1,0 +1,65 @@
+syntax = "proto3";
+package momandpop;
+
+import "google/api/annotations.proto";
+import "google/type/date.proto";
+import "google/type/money.proto";
+import "google/protobuf/empty.proto";
+
+enum Gender {
+  GENDER_NON = 0;
+  GENDER_MALE = 1;
+  GENDER_FEMALE = 2;
+}
+
+message Product {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  google.type.Money price = 4;
+}
+
+message Customer {
+  int32 id = 1;
+  string name = 2;
+  google.type.Date birthday = 3;
+  Gender gender = 4;
+}
+
+message Sale {
+  int32 id = 1;
+  Customer customer = 2;
+  repeated Product products = 3;
+}
+
+message ProductsList {
+  repeated Product products = 1;
+}
+
+message SalesList {
+  repeated Sale sales = 1;
+}
+
+message CustomerList {
+  repeated Customer customers = 1;
+}
+
+service MomAndPop {
+  rpc GetAllProducts (google.protobuf.Empty) returns (ProductsList) {
+    option (google.api.http) = {
+      get: "/products"
+    };
+  }
+  
+  rpc GetAllSales (google.protobuf.Empty) returns (SalesList) {
+    option (google.api.http) = {
+      get: "/sales"
+    };
+  }
+  
+  rpc GetAllCustomers (google.protobuf.Empty) returns (CustomerList) {
+    option (google.api.http) = {
+      get: "/customers"
+    };
+  }
+}

@@ -1,27 +1,16 @@
 {
-  "name": "grpc-demo",
+  "name": "momandpop",
   "version": "1.0.0",
-  "description": "Full demo of my nodejs CLI tools for grpc",
   "main": "index.js",
   "scripts": {
-    "grpc": "grpc-server --host localhost:50051 -I ./proto helloworld.proto helloworld.js",
-    "gateway": "grpc-dynamic-gateway -g localhost:50051 -I ./proto helloworld.proto",
-    "test": "grpc-client run --host localhost:50051 -I ./proto helloworld.proto -m helloworld.Greeter.SayHello -a '{\"name\": \"World\"}'",
-    "ls": "grpc-client ls -I ./proto helloworld.proto",
-    "genserver": "grpc-client generate -I ./proto helloworld.proto"
+    "grpc": "nodemon --exec 'grpc-server --host localhost:50051 -I ./proto momandpop.proto momandpop.js' --watch . -e js,proto",
+    "gateway": "nodemon --exec 'grpc-dynamic-gateway -g localhost:50051 -I ./proto momandpop.proto' --watch . -e proto",
+    "start": "npm-run-all -p grpc gateway"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/konsumer/grpc-demo.git"
-  },
-  "author": "David Konsumer <konsumer@jetboystudio.com> (http://konsumer.js.org)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/konsumer/grpc-demo/issues"
-  },
-  "homepage": "https://github.com/konsumer/grpc-demo#readme",
   "dependencies": {
     "grpc-dynamic-gateway": "0.2.2",
-    "grpcnode": "0.1.0"
+    "grpcnode": "0.1.0",
+    "nodemon": "^1.15.1",
+    "npm-run-all": "^4.1.2"
   }
 }
