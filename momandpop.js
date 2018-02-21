@@ -64,6 +64,14 @@ const deleteById = (stuff, id) => {
 module.exports = {
   momandpop: {
     MomAndPop: {
+      GetProduct: (ctx, cb) => {
+        const id = findIndexById(data.products, parseInt(ctx.request.id))
+        if (id === -1) {
+          return cb(new Error('Product not found.'))
+        }
+        cb(null, data.products[id])
+      },
+
       GetAllProducts: (ctx, cb) => {
         cb(null, data.products)
       },
@@ -86,11 +94,9 @@ module.exports = {
         }
       },
 
-      DeleteProducts: (ctx, cb) => {
-        const indexes = ctx.request.id
-          .map(id => deleteById(data.products, id))
-          .filter(i => i)
-        cb(null, {id: indexes})
+      DeleteProduct: (ctx, cb) => {
+        const index = deleteById(data.products, parseInt(ctx.request.id))
+        cb(null, {id: [index]})
       },
 
       GetAllSales: (ctx, cb) => {

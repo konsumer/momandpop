@@ -48,7 +48,23 @@ message AffectedRows {
   repeated int32 id = 1;
 }
 
+message OneItem {
+  string id = 1;
+}
+
 service MomAndPop {
+  rpc GetProduct (OneItem) returns (Product) {
+    option (google.api.http) = {
+      get: "/product/{id}"
+    };
+  }
+
+  rpc DeleteProduct (OneItem) returns (AffectedRows) {
+    option (google.api.http) = {
+      delete: "/product/{id}"
+    };
+  }
+
   rpc GetAllProducts (google.protobuf.Empty) returns (ProductsList) {
     option (google.api.http) = {
       get: "/products"
@@ -58,13 +74,6 @@ service MomAndPop {
   rpc UpsertProduct (Product) returns (AffectedRows) {
     option (google.api.http) = {
       post: "/product"
-      body: "*"
-    };
-  }
-
-  rpc DeleteProducts (AffectedRows) returns (AffectedRows) {
-    option (google.api.http) = {
-      delete: "/products"
       body: "*"
     };
   }
