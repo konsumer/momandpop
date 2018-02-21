@@ -28,8 +28,8 @@ message Customer {
 
 message Sale {
   string id = 1;
-  Customer customer = 2;
-  repeated Product products = 3;
+  string customer = 2;
+  repeated string products = 3;
 }
 
 message ProductsList {
