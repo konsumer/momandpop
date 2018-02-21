@@ -10,6 +10,9 @@
   "dependencies": {
     "grpc-dynamic-gateway": "0.2.2",
     "grpcnode": "0.1.0",
+    "level-sublevel": "^6.6.1",
+    "leveldown": "^3.0.0",
+    "levelup": "^2.0.2",
     "nodemon": "^1.15.1",
     "npm-run-all": "^4.1.2",
     "uuid": "^3.2.1"

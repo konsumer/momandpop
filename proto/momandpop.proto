@@ -13,21 +13,21 @@ enum Gender {
 }
 
 message Product {
-  int32 id = 1;
+  string id = 1;
   string name = 2;
   string description = 3;
   google.type.Money price = 4;
 }
 
 message Customer {
-  int32 id = 1;
+  string id = 1;
   string name = 2;
   google.type.Date birthday = 3;
   Gender gender = 4;
 }
 
 message Sale {
-  int32 id = 1;
+  string id = 1;
   Customer customer = 2;
   repeated Product products = 3;
 }
@@ -40,12 +40,12 @@ message SalesList {
   repeated Sale sales = 1;
 }
 
-message CustomerList {
+message CustomersList {
   repeated Customer customers = 1;
 }
 
 message AffectedRows {
-  repeated int32 id = 1;
+  repeated string id = 1;
 }
 
 message OneItem {
@@ -78,15 +78,53 @@ service MomAndPop {
     };
   }
   
+  rpc GetCustomer (OneItem) returns (Customer) {
+    option (google.api.http) = {
+      get: "/customer/{id}"
+    };
+  }
+
+  rpc DeleteCustomer (OneItem) returns (AffectedRows) {
+    option (google.api.http) = {
+      delete: "/customer/{id}"
+    };
+  }
+
+  rpc GetAllCustomers (google.protobuf.Empty) returns (CustomersList) {
+    option (google.api.http) = {
+      get: "/customers"
+    };
+  }
+
+  rpc UpsertCustomer (Customer) returns (AffectedRows) {
+    option (google.api.http) = {
+      post: "/customer"
+      body: "*"
+    };
+  }
+
+  rpc GetSale (OneItem) returns (Sale) {
+    option (google.api.http) = {
+      get: "/sale/{id}"
+    };
+  }
+
+  rpc DeleteSale (OneItem) returns (AffectedRows) {
+    option (google.api.http) = {
+      delete: "/sale/{id}"
+    };
+  }
+
   rpc GetAllSales (google.protobuf.Empty) returns (SalesList) {
     option (google.api.http) = {
       get: "/sales"
     };
   }
-  
-  rpc GetAllCustomers (google.protobuf.Empty) returns (CustomerList) {
+
+  rpc UpsertSale (Sale) returns (AffectedRows) {
     option (google.api.http) = {
-      get: "/customers"
+      post: "/sale"
+      body: "*"
     };
   }
 }

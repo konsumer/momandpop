@@ -1,116 +1,124 @@
-const data = {
-  products: [
-    {
-      id: 1,
-      name: 'Taktical Pants',
-      description: 'Pants for a war with zombies or non-zombies.',
-      price: {
-        currency_code: 'USD',
-        units: 5
-      }
-    },
-    {
-      id: 2,
-      name: 'Regular Pants',
-      description: 'Pants for whatever',
-      price: {
-        currency_code: 'USD',
-        units: 7,
-        nanos: 52000000
-      }
-    },
-    {
-      id: 99,
-      name: 'Dumb Shirt',
-      description: 'Ugly shirt that no one wants',
-      price: {
-        currency_code: 'USD',
-        units: 100
-      }
-    }
-  ],
+const uuidv4 = require('uuid/v4')
 
-  customers: [
-    {
-      id: 1,
-      name: 'David Konsumer',
-      birthday: {
-        year: 1977,
-        month: 2,
-        day: 21
-      }
-    }
-  ],
+const LevelUp = require('levelup')
+const LevelDown = require('leveldown')
+const Sublevel = require('level-sublevel')
 
-  sales: [
-    {
-      id: 1,
-      customer: 1,
-      products: [1, 2]
-    }
-  ]
-}
+const db = Sublevel(LevelUp(LevelDown('/tmp/momandpop'), { encoding: 'json' }))
 
-const findById = (stuff, id) => stuff.filter(thing => thing.id === id).pop()
-const findIndexById = (stuff, id) => stuff.map(thing => thing.id).indexOf(id)
-const deleteById = (stuff, id) => {
-  const index = findIndexById(stuff, id)
-  if (index > -1) {
-    stuff.splice(index, 1)
-    return id
-  }
-}
+const customer = db.sublevel('customer')
+const product = db.sublevel('product')
+const sale = db.sublevel('sale')
 
 module.exports = {
   momandpop: {
     MomAndPop: {
       GetProduct: (ctx, cb) => {
-        const id = findIndexById(data.products, parseInt(ctx.request.id))
-        if (id === -1) {
-          return cb(new Error('Product not found.'))
-        }
-        cb(null, data.products[id])
+        product.get(ctx.request.id, cb)
       },
 
       GetAllProducts: (ctx, cb) => {
-        cb(null, data.products)
+        const out = {products: []}
+        product.createValueStream()
+          .on('data', (data) => {
+            out.products.push(data)
+          })
+          .on('end', () => {
+            cb(null, out)
+          })
       },
 
       UpsertProduct: (ctx, cb) => {
-        if (ctx.request.id !== 0) {
-          // update
-          const pid = findIndexById(data.products, ctx.request.id)
-          if (pid === -1) {
-            return cb()
-          }
-          Object.assign(data.products[pid], ctx.request)
-          cb(null, {id: [ctx.request.id]})
-        } else {
-          // insert
-          const id = parseInt(Math.random() * 1000000000)
-          const product = Object.assign({}, ctx.request, {id})
-          data.products.push(product)
-          cb(null, {id: [product.id]})
+        if (ctx.request.id === '') {
+          ctx.request.id = uuidv4()
         }
+        product.put(ctx.request.id, ctx.request, (err, ret) => {
+          if (err) {
+            return cb(err)
+          }
+          cb(null, {id: [ctx.request.id]})
+        })
       },
 
       DeleteProduct: (ctx, cb) => {
-        const index = deleteById(data.products, parseInt(ctx.request.id))
-        cb(null, {id: [index]})
+        product.del(ctx.request.id, err => {
+          if (err) {
+            return cb(err)
+          }
+          cb(null, {id: [ctx.request.id]})
+        })
+      },
+
+      GetSale: (ctx, cb) => {
+        sale.get(ctx.request.id, cb)
       },
 
       GetAllSales: (ctx, cb) => {
-        const sales = data.sales.slice()
-          .map(sale => {
-            sale.products = sale.products.map(pid => findById(data.products, pid))
-            sale.customer = findById(data.customers, sale.customer)
-            return sale
+        const out = {sales: []}
+        sale.createValueStream()
+          .on('data', (data) => {
+            out.sales.push(data)
           })
-        cb(null, sales)
+          .on('end', () => {
+            cb(null, out)
+          })
+      },
+
+      UpsertSale: (ctx, cb) => {
+        if (ctx.request.id === '') {
+          ctx.request.id = uuidv4()
+        }
+        sale.put(ctx.request.id, ctx.request, (err, ret) => {
+          if (err) {
+            return cb(err)
+          }
+          cb(null, {id: [ctx.request.id]})
+        })
+      },
+
+      DeleteSale: (ctx, cb) => {
+        sale.del(ctx.request.id, err => {
+          if (err) {
+            return cb(err)
+          }
+          cb(null, {id: [ctx.request.id]})
+        })
+      },
+
+      GetCustomer: (ctx, cb) => {
+        customer.get(ctx.request.id, cb)
       },
 
       GetAllCustomers: (ctx, cb) => {
-        cb(null, data.customers)
+        const out = {customers: []}
+        customer.createValueStream()
+          .on('data', (data) => {
+            out.customers.push(data)
+          })
+          .on('end', () => {
+            cb(null, out)
+          })
+      },
+
+      UpsertCustomer: (ctx, cb) => {
+        if (ctx.request.id === '') {
+          ctx.request.id = uuidv4()
+        }
+        customer.put(ctx.request.id, ctx.request, (err, ret) => {
+          if (err) {
+            return cb(err)
+          }
+          cb(null, {id: [ctx.request.id]})
+        })
+      },
+
+      DeleteCustomer: (ctx, cb) => {
+        customer.del(ctx.request.id, err => {
+          if (err) {
+            return cb(err)
+          }
+          cb(null, {id: [ctx.request.id]})
+        })
       }
     }
   }
